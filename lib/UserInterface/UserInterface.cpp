@@ -12,6 +12,7 @@
 #include "cling/Interpreter/Exception.h"
 #include "cling/MetaProcessor/MetaProcessor.h"
 #include "cling/Utils/Output.h"
+#include "cling/Utils/AnsiColors.h"
 #include "textinput/Callbacks.h"
 #include "textinput/History.h"
 #include "textinput/StreamReader.h"
@@ -142,8 +143,11 @@ namespace cling {
     }
 
     bool Done = false;
+    m_MetaProcessor->setInterpInputCounter(1);
     std::string Line;
-    std::string Prompt("[cling]$ ");
+    std::string Prompt("\n" DARK_GREEN "In [" LIGHT_GREEN BOLD + \
+      std::to_string(m_MetaProcessor->getInterpreter().getInputCounter()) + \
+      RESET DARK_GREEN "]: " RESET);
 
     while (!Done) {
       try {
@@ -164,14 +168,34 @@ namespace cling {
         if (indent < 0)
           break;
 
-        Prompt.replace(7, std::string::npos,
-           m_MetaProcessor->getInterpreter().isRawInputEnabled() ? "! " : "$ ");
+        // Prompt.replace(7, std::string::npos,
+        //    m_MetaProcessor->getInterpreter().isRawInputEnabled() ? "! " : "$ ");
+
+        if (m_MetaProcessor->getInterpreter().isRawInputEnabled()) {
+          m_MetaProcessor->incInterpInputCounter();
+          Prompt = "\n" DARK_GREEN "Raw[" LIGHT_GREEN BOLD + \
+            std::to_string(m_MetaProcessor->getInterpreter().getInputCounter()) + \
+            RESET DARK_GREEN "]: " RESET;
+        } else {
+          if (indent > 0) {
+            int counter = m_MetaProcessor->getInterpreter().getInputCounter();
+            Prompt = "";
+            Prompt.append(2 + std::to_string(counter).length(), ' ');
+            Prompt.append(DARK_GREEN "...: " RESET);
+            Prompt.append(indent * 4, ' ');
+          } else {
+            m_MetaProcessor->incInterpInputCounter();
+            Prompt = "\n" DARK_GREEN "In [" LIGHT_GREEN BOLD + \
+              std::to_string(m_MetaProcessor->getInterpreter().getInputCounter()) + \
+              RESET DARK_GREEN "]: " RESET;
+          }
+        }
 
         // Continuation requested?
-        if (indent > 0) {
-          Prompt.append(1, '?');
-          Prompt.append(indent * 3, ' ');
-        }
+        // if (indent > 0) {
+        //   Prompt.append(1, '?');
+        //   Prompt.append(indent * 3, ' ');
+        // }
       }
       catch(InterpreterException& e) {
         if (!e.diagnose()) {
@@ -195,17 +219,21 @@ namespace cling {
     const clang::LangOptions& LangOpts
       = m_MetaProcessor->getInterpreter().getCI()->getLangOpts();
     if (LangOpts.CPlusPlus) {
-      outs << "\n"
-        "****************** CLING ******************\n"
-        "* Type C++ code and press enter to run it *\n"
-        "*             Type .q to exit             *\n"
-        "*******************************************\n";
+      // outs << "\n"
+      //   "****************** CLING ******************\n"
+      //   "* Type C++ code and press enter to run it *\n"
+      //   "*             Type .q to exit             *\n"
+      //   "*******************************************\n";
+      outs << "CLING " << Interpreter::getVersion() << "\n";
+      outs << "Type C++ code and press enter to run it, type .q to exit\n";
     } else {
-      outs << "\n"
-        "***************** CLING *****************\n"
-        "* Type C code and press enter to run it *\n"
-        "*            Type .q to exit            *\n"
-        "*****************************************\n";
+      // outs << "\n"
+        // "***************** CLING *****************\n"
+        // "* Type C code and press enter to run it *\n"
+        // "*            Type .q to exit            *\n"
+        // "*****************************************\n";
+      outs << "CLING " << Interpreter::getVersion() << "\n";
+      outs << "Type C++ code and press enter to run it, type .q to exit\n";
     }
   }
 } // end namespace cling

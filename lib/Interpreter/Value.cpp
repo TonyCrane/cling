@@ -17,6 +17,7 @@
 #include "cling/Utils/Casting.h"
 #include "cling/Utils/Output.h"
 #include "cling/Utils/UTF8.h"
+#include "cling/Utils/AnsiColors.h"
 
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/CanonicalType.h"
@@ -315,6 +316,10 @@ namespace cling {
     // operation (calling printValueInternal below may write to stderr).
     const std::string Type = valuePrinterInternal::printTypeInternal(*this);
 
+    std::string Prompt = DARK_RED "Out[" LIGHT_RED BOLD + \
+      std::to_string(getInterpreter()->getInputCounter()) + \
+      RESET DARK_RED "]: " RESET;
+
     // Get the value string representation, by printValue() method overloading
     const std::string Val
       = cling::valuePrinterInternal::printValueInternal(*this);
@@ -330,7 +335,7 @@ namespace cling {
           // Unicode string, encoded as Utf-8
           if (N > 2 && Data[N-1] == '\"') {
             // Drop the terminating " so Utf-8 errors can be detected ("\xeA")
-            Out << Type << ' ';
+            Out << Prompt << DARK_YELLOW << Type << RESET << ' ';
             utils::utf8::EscapeSequence().encode(Data, N-1, Out) << "\"\n";
             return;
           }
@@ -339,7 +344,7 @@ namespace cling {
           break;
       }
     }
-    Out << Type << ' ' << Val << '\n';
+    Out << Prompt << DARK_YELLOW << Type << RESET << ' ' << Val << '\n';
   }
 
   void Value::dump(bool Escape) const {

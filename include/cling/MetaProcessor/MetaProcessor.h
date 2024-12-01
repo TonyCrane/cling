@@ -163,6 +163,9 @@ namespace cling {
     ///\param [in] T - the last transaction stay should filename be unloaded.
     ///\param [in] filename - The name of the file to be used as unload point.
     void registerUnloadPoint(const Transaction* T, llvm::StringRef filename);
+
+    void incInterpInputCounter() { m_Interp.incInputCounter(); }
+    void setInterpInputCounter(int value) { m_Interp.setInputCounter(value); }
   };
 } // end namespace cling
 

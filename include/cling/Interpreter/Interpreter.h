@@ -231,6 +231,8 @@ namespace cling {
     ///
     int m_OptLevel;
 
+    int m_InputCounter;
+
     ///\brief Interpreter callbacks.
     ///
     std::unique_ptr<InterpreterCallbacks> m_Callbacks;
@@ -725,6 +727,10 @@ namespace cling {
 
     int getDefaultOptLevel() const { return m_OptLevel; }
     void setDefaultOptLevel(int optLevel) { m_OptLevel = optLevel; }
+
+    int getInputCounter() const { return m_InputCounter; }
+    void setInputCounter(int value) { m_InputCounter = value; }
+    void incInputCounter() { ++m_InputCounter; }
 
     clang::CompilerInstance* getCI() const;
     clang::CompilerInstance* getCIOrNull() const;
