@@ -39,14 +39,12 @@ Our nightly binary snapshots are currently unavailable.
 ### Building from Source
 
 ```bash
-git clone https://github.com/root-project/llvm-project.git
-cd llvm-project
-git checkout cling-latest
-cd ..
-git clone https://github.com/root-project/cling.git
+git clone -b cling-latest https://github.com/root-project/llvm-project.git --depth=1
+git clone https://github.com/TonyCrane/cling.git
 mkdir cling-build && cd cling-build
 cmake -DLLVM_EXTERNAL_PROJECTS=cling -DLLVM_EXTERNAL_CLING_SOURCE_DIR=../cling/ -DLLVM_ENABLE_PROJECTS="clang" -DLLVM_TARGETS_TO_BUILD="host;NVPTX" -DCMAKE_BUILD_TYPE=Release ../llvm-project/llvm
-cmake --build . --target cling
+cmake --build . --target clang -j$(nproc)   # based on https://github.com/root-project/cling/issues/531
+cmake --build . --target cling -j$(nproc)
 ```
 
 See also the instructions [on the webpage](https://root.cern/cling/cling_build_instructions/).
